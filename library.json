@@ -1,0 +1,20 @@
+{
+  "name": "LM75",
+  "version": "0.1.0",
+  "keywords": "Sensor, Temperature, LM75, I2C, TWI",
+  "description": "Temperature Sensor Library for the LM75 Sensor IC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RedCali/LM75.git"
+  },
+  "authors": [
+    {
+      "name": "Bastian Geier",
+      "email": "mail@bastiangeier.de",
+      "url": "https://github.com/RedCali/LCD8448.git",
+      "maintainer": true
+    }
+  ],
+  "frameworks": "arduino,avr",
+  "platforms": "*"
+}
