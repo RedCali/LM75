@@ -15,7 +15,7 @@
 
 #if defined(ARDUINO) && ARDUINO >= 100
 #pragma message("Compiling for Arduino Framework Architecture...")
-#include <Wire.h>S
+#include <Wire.h>
 #include <avr/io.h>
 
 #include "Arduino.h"
@@ -29,27 +29,39 @@
 #include <stdint.h>
 
 #pragma region Constant definition
-// LM75 Commandset
-#define ON 0
-#define SHUTDOWN 1
-#define OFF 1
+// LM75 Command set
+#define LM75_REGISTER_TEMP 0x01    // Temperature
+#define LM75_REGISTER_CONFIG 0x01  // Configuration
+#define LM75_REGISTER_HYSTER 0x02  // Temperature Hysteresis
+#define LM75_REGISTER_OS 0x03      // Overtemperatur ShutDown
 
-#define COMP 2
-#define INT 3
-
-#define OS_POL_LOW 4
-#define OS_POL_HIGH 5
-
-#define FAULT_QUEUE_1 6
-#define FAULT_QUEUE_2 7
-#define FAULT_QUEUE_4 8
-#define FAULT_QUEUE_6 9
+#define LM75_ADDRESS_BASE 0b01001000
 #pragma endregion Constant definition
 
 class LM75 {
    public:
 #pragma region PUBLIC
-    explicit LM75(const uint8_t deviceAddress, TwoWire *wire = &Wire);
+    enum LM75_Configuration : uint8_t {
+        SHUT_DOWN = 0b00000001,    // if activated, chip is in low power / power safe mode
+        INTERRUPT = 0b00000010,    // if deactivated it works in comparator mode
+        OS_POL_HIGH = 0b00000100,  // if deactivated it works in LOW Pol mode mode
+        FAULT_Q_1 = 0b00000000,
+        FAULT_Q_2 = 0b00001000,
+        FAULT_Q_4 = 0b00010000,
+        FAULT_Q_6 = 0b00011000,
+    };
+    enum LM75_Address : uint8_t {
+        A0 = LM75_ADDRESS_BASE,
+        A1 = A0 + 1,
+        A2 = A0 + 2,
+        A3 = A0 + 3,
+        A4 = A0 + 4,
+        A5 = A0 + 5,
+        A6 = A0 + 6,
+        A7 = A0 + 7,
+    };
+
+    explicit LM75(LM75_Address deviceAddress, TwoWire *wire = &Wire);
 
     void begin();            // Set address & default pointer -> read temperature
     void read(void);         // Temperature read
@@ -57,20 +69,22 @@ class LM75 {
     float get_f(void);       // Temperature read
     void get_s(char *temp);  // Temperature read
 
-    void config_w(uint8_t conf);      // Configuration write
-    uint8_t config_r(void);           // Configuration read
-    void thy_w(const uint16_t &thy);  // Temperature hysteresis write
-    uint16_t thy_r(void);             // Temperature hysteresis read
-    void tos_w(const uint16_t &tos);  // Temperature over temperature shut down write
-    uint16_t tos_r(void);             // Temperature over temperature shut down read
+    void setConfig(LM75_Configuration conf);    // Set Configuration
+    void resetConfig(LM75_Configuration conf);  // Set Configuration
+    LM75_Configuration readConfig(void);        // Read Configuration
+    LM75_Configuration getConfig(void);         // Get Configuration
+    void thy_w(const uint16_t &thy);            // Temperature hysteresis write
+    uint16_t thy_r(void);                       // Temperature hysteresis read
+    void tos_w(const uint16_t &tos);            // Temperature over temperature shut down write
+    uint16_t tos_r(void);                       // Temperature over temperature shut down read
 #pragma endregion PUBLIC
 
    private:
 #pragma region PRIVATE
     TwoWire *_wire;
 
-    uint8_t _address = 0;
-    uint8_t _config = 0;
+    LM75_Address _address = LM75_Address::A0;
+    LM75_Configuration _config = (LM75_Configuration)0x00;
 
     struct LM75_Internals {
         int16_t hysteresis;
@@ -78,7 +92,11 @@ class LM75 {
         int16_t temp;
     } _internals = {0, 0, 0};
 
-    void temp_rs(uint8_t rs);  // Register select
+    inline void selectRegister(uint8_t reg) {  // Register select
+        _wire->beginTransmission(_address);    // Transmit to device address
+        _wire->write(reg % 4);                 // Sets register pointer to #rs%4 --> just 0-3
+        _wire->endTransmission();
+    }
 #pragma endregion PRIVATE
 };
 
