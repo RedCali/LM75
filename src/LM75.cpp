@@ -8,7 +8,7 @@
 * Any suggestions are welcome.
 */
 
-#include "LM_75.h"
+#include "LM75.h"
 
 #pragma region PUBLIC
 LM75::LM75(const uint8_t address, TwoWire *wire = &Wire) {

@@ -8,8 +8,7 @@ See [LM75](https://github.com/RedCali/LM75.git) for more detailed information on
 ## Open topics / Ideas
 
 - [ ] Refactoring previous / first implementation
-- [ ] Using Base class for SPI and Pins
-  - [ ] CTor --> Passing the SPI and PIN objects from base class AND using KEY `explicit`
+- [ ] Using Base class for I^2^C
 - [ ] Documentation of Methods
 - [ ] Arduino Keywords
 
