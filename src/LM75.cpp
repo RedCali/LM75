@@ -29,12 +29,11 @@ void LM75::begin() {       // set address & default pointer -> read temperature
     _wire->write(0x02);                  // sets Sregister pointer to T-Hysteresis (0x02)
     _wire->endTransmission();
     _wire->requestFrom(_address, 2);
-    if (2 <= _wire->available())  // if two bytes were received
-    {
-        _temperature_hyst = _wire->read();           // receive high byte (overwrites previous reading)
-        _temperature_hyst = _temperature_hyst << 8;  // shift high byte to be high 8 bits
-        _temperature_hyst |= _wire->read();          // receive low byte as lower 8 bits
-        _temperature_hyst = _temperature_hyst >> 7;
+    if (2 <= _wire->available()) {                           // if two bytes were received
+        _internals.hysteresis = _wire->read();               // receive high byte (overwrites previous reading)
+        _internals.hysteresis = _internals.hysteresis << 8;  // shift high byte to be high 8 bits
+        _internals.hysteresis |= _wire->read();              // receive low byte as lower 8 bits
+        _internals.hysteresis = _internals.hysteresis >> 7;
     }
     delay(10);
 
@@ -42,12 +41,11 @@ void LM75::begin() {       // set address & default pointer -> read temperature
     _wire->write(0x03);                  // sets register pointer to T-Os (0x03)
     _wire->endTransmission();
     _wire->requestFrom(_address, 2);
-    if (2 <= _wire->available())  // if two bytes were received
-    {
-        _temperature_os = _wire->read();         // receive high byte (overwrites previous reading)
-        _temperature_os = _temperature_os << 8;  // shift high byte to be high 8 bits
-        _temperature_os |= _wire->read();        // receive low byte as lower 8 bits
-        _temperature_os = _temperature_os >> 7;
+    if (2 <= _wire->available()) {           // if two bytes were received
+        _internals.os = _wire->read();       // receive high byte (overwrites previous reading)
+        _internals.os = _internals.os << 8;  // shift high byte to be high 8 bits
+        _internals.os |= _wire->read();      // receive low byte as lower 8 bits
+        _internals.os = _internals.os >> 7;
     }
     delay(10);
 
@@ -59,8 +57,7 @@ void LM75::begin() {       // set address & default pointer -> read temperature
 
 void LM75::read(void) {  // temperature read
     _wire->requestFrom(_address, 2);
-    if (2 <= _wire->available())  // if two bytes were received
-    {
+    if (2 <= _wire->available()) {          // if two bytes were received
         _temperature_high = _wire->read();  // receive high byte (overwrites previous reading)
         _temperature_low = _wire->read();   // receive low byte as lower 8 bits
         _temperature_low = _temperature_low >> 7;
@@ -84,18 +81,20 @@ void LM75::get_s(char *temp) {
         _temperature_high_hilf -= 1;
     } else {
         temp[0] = (_temperature_high_hilf / 100) % 10 + '0';
-        if (temp[0] == '0')
+        if (temp[0] == '0') {
             temp[0] = ' ';
+        }
     }
     temp[1] = (_temperature_high_hilf / 10) % 10 + '0';
     temp[2] = _temperature_high_hilf % 10 + '0';
 
     temp[3] = ',';
 
-    if (_temperature_low)
+    if (_temperature_low) {
         temp[4] = '5';
-    else
+    } else {
         temp[4] = '0';
+    }
 }
 
 void LM75::config_w(uint8_t conf) {  // configuration write
@@ -152,7 +151,7 @@ uint8_t LM75::config_r(void) {  // configuration read
 }
 
 void LM75::thy_w(const uint16_t &thy) {  // temperature hysteresis write
-    _temperature_hyst = thy;
+    _internals.hysteresis = thy;
     _wire->beginTransmission(_address);  // transmit to device address
     _wire->write(0x02);                  // sets register pointer to T-Hysteresis (0x02)
     _wire->write(_temperature_hyst);     // sets configuration to default
@@ -164,14 +163,14 @@ void LM75::thy_w(const uint16_t &thy) {  // temperature hysteresis write
 }
 
 uint16_t LM75::thy_r(void) {  // temperature hysteresis read
-    return _temperature_hyst;
+    return _internals.hysteresis;
 }
 
 void LM75::tos_w(const uint16_t &tos) {  // over temperature shut down write
-    _temperature_os = tos;
+    _internals.os = tos;
     _wire->beginTransmission(_address);  // transmit to device address
     _wire->write(0x03);                  // sets register pointer to T-OS (0x03)
-    _wire->write(_temperature_os);       // sets configuration to default
+    _wire->write(_internals.os);         // sets configuration to default
     _wire->endTransmission();
     delay(10);
     _wire->beginTransmission(_address);  // transmit to device address
@@ -180,7 +179,7 @@ void LM75::tos_w(const uint16_t &tos) {  // over temperature shut down write
 }
 
 uint16_t LM75::tos_r(void) {  // over temperature shut down read
-    return _temperature_os;
+    return _internals.os;
 }
 #pragma endregion PUBLIC
 

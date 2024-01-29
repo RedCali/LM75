@@ -68,12 +68,16 @@ class LM75 {
    private:
 #pragma region PRIVATE
     TwoWire *_wire;
+
     uint8_t _address = 0;
     uint8_t _config = 0;
-    int16_t _temperature_hyst = 0;
-    int16_t _temperature_os = 0;
-    uint8_t _temperature_high = 0;
-    uint8_t _temperature_low = 0;
+
+    struct LM75_Internals {
+        int16_t hysteresis;
+        int16_t os;
+        int16_t temp;
+    } _internals = {0, 0, 0};
+
     void temp_rs(uint8_t rs);  // Register select
 #pragma endregion PRIVATE
 };
