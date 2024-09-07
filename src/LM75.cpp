@@ -1,8 +1,8 @@
 /*
 * LM75 Temperature Sensor implementation
-* Base   	: Bastian Geier
+* Base    : Bastian Geier
 * Date    : 30.12.2023
-* E-mail	: mail@bastiangeier.de
+* E-mail  : mail@bastiangeier.de
 * Repo    : https://github.com/RedCali/LM75.git
 
 * Any suggestions are welcome.
