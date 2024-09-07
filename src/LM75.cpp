@@ -52,8 +52,8 @@ void LM75::begin() {                     // set address & default pointer -> rea
 void LM75::read(void) {  // temperature read
     _wire->requestFrom(_address, 2);
     if (2 <= _wire->available()) {              // if two bytes were received
-        _internals.temp = _wire->read() << 1;   // receive high byte (overwrites previous reading)
-        _internals.temp |= _wire->read() >> 7;  // receive low byte as lower 8 bits and shift 7 to the right
+        _internals.tempHigh = _wire->read();   // receive high byte (overwrites previous reading)
+        _internals.tempLow |= _wire->read() >> 7;  // receive low byte as lower 8 bits and shift 7 to the right
     }
 }
 

@@ -89,8 +89,9 @@ class LM75 {
     struct LM75_Internals {
         int16_t hysteresis;
         int16_t os;
-        int16_t temp;
-    } _internals = {0, 0, 0};
+        int8_t tempHigh;
+        int8_t tempLow;
+    } _internals = {0, 0, 0, 0};
 
     inline void selectRegister(uint8_t reg) {  // Register select
         _wire->beginTransmission(_address);    // Transmit to device address
